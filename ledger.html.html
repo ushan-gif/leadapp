@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lead Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+:root{
+  --green:#25D366;--green-dark:#1a9e4d;--green-light:#e8faf0;
+  --red:#e53e3e;--red-light:#fff5f5;--red-border:#fed7d7;
+  --amber:#d97706;--amber-light:#fffbeb;--amber-border:#fde68a;
+  --blue:#2563eb;--blue-light:#eff6ff;--blue-border:#bfdbfe;
+  --purple:#7c3aed;--purple-light:#faf5ff;--purple-border:#e9d5ff;
+  --bg:#f8f9fb;--surface:#fff;--border:#e5e7eb;--border2:#d1d5db;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --radius:10px;--radius-lg:14px;--shadow:0 1px 3px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:-webkit-fill-available}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;min-height:-webkit-fill-available;-webkit-text-size-adjust:100%}
+.screen{display:none}.screen.on{display:block}
+
+/* LOGIN */
+.login-page{min-height:100vh;min-height:-webkit-fill-available;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;width:100%;max-width:360px;box-shadow:var(--shadow)}
+.login-logo{width:56px;height:56px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;margin:0 auto 1.25rem}
+.login-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:1.75rem}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--border2);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--surface);outline:none;-webkit-appearance:none;appearance:none;transition:border .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(37,211,102,.12)}
+.field textarea{resize:vertical;min-height:72px;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 16px;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);-webkit-appearance:none;touch-action:manipulation;transition:all .15s}
+.btn:active{opacity:.75}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff;width:100%}
+.btn.danger{background:var(--red-light);border-color:var(--red-border);color:var(--red)}
+.btn.sm{padding:8px 13px;font-size:13px}
+.err{background:var(--red-light);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius);padding:10px 13px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.err.on{display:flex}
+
+/* MAIN */
+.main-page{max-width:900px;margin:0 auto;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:10px;flex-wrap:wrap}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.t-logo{width:38px;height:38px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0}
+.t-title{font-size:16px;font-weight:600}
+.t-sub{font-size:12px;color:var(--text2)}
+.role-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+.role-badge.admin{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border)}
+.role-badge.sales{background:var(--green-light);color:var(--green-dark);border:1px solid #a7f3d0}
+.topbar-right{display:flex;gap:8px}
+
+/* NAV TABS */
+.nav-tabs{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:0}
+.nav-tab{padding:9px 16px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;touch-action:manipulation}
+.nav-tab.active{color:var(--green-dark);border-bottom-color:var(--green)}
+.nav-tab.admin-only{display:none}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem .85rem;cursor:pointer;transition:border .15s}
+.stat:hover{border-color:var(--border2)}
+.stat-n{font-size:22px;font-weight:600}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* SEARCH */
+.search-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.search-row input{flex:1;min-width:140px;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--surface);outline:none;-webkit-appearance:none}
+.search-row input:focus{border-color:var(--green)}
+.search-row select{padding:10px 11px;border:1px solid var(--border2);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);-webkit-appearance:none;outline:none}
+
+/* FORM */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.form-section{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px;display:flex;align-items:center;gap:6px}
+.form-section:first-of-type{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid.one{grid-template-columns:1fr}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.dup-warn{background:var(--red-light);border:1px solid var(--red-border);border-radius:var(--radius);padding:11px 13px;font-size:13px;color:var(--red);display:none;align-items:flex-start;gap:8px;margin-bottom:12px}
+.dup-warn.on{display:flex}
+.dup-inner{background:var(--surface);border:1px solid var(--red-border);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px}
+.dup-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--red-border)}
+.dup-row:last-child{border:none}
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;background:var(--bg)}
+.upload-zone i{font-size:22px;color:var(--text3)}
+.upload-zone p{font-size:12px;color:var(--text2);margin-top:4px}
+.file-ok{font-size:12px;color:var(--green-dark);display:none;align-items:center;gap:5px;margin-top:6px}
+.file-ok.on{display:flex}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* LEAD CARDS */
+.leads{display:flex;flex-direction:column;gap:8px}
+.lcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.9rem 1rem;display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center}
+.lcard.dup-card{border-color:var(--red-border);background:var(--red-light)}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
+.lphone{font-size:14px;font-weight:600}
+.lname{font-size:13px;color:var(--text2);margin-top:1px}
+.ljob{font-size:12px;color:var(--purple);font-weight:500;margin-top:2px}
+.lmeta{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:600;border:1px solid transparent}
+.chip.sales-chip{background:var(--blue-light);color:var(--blue);border-color:var(--blue-border)}
+.chip.st-new{background:var(--green-light);color:var(--green-dark);border-color:#a7f3d0}
+.chip.st-follow{background:var(--amber-light);color:var(--amber);border-color:var(--amber-border)}
+.chip.st-closed{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.chip.st-dup{background:var(--red-light);color:var(--red);border-color:var(--red-border)}
+.chip.st-continued{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.chip.st-notcontinued{background:var(--red-light);color:var(--red);border-color:var(--red-border)}
+.chip.cv{background:var(--purple-light);color:var(--purple);border-color:var(--purple-border)}
+.chip.pay{background:var(--amber-light);color:var(--amber);border-color:var(--amber-border)}
+.ldate{font-size:11px;color:var(--text3)}
+.lactions{display:flex;gap:5px}
+.ibtn{width:34px;height:34px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:17px;touch-action:manipulation}
+.ibtn:active{background:var(--bg)}
+.ibtn.locked{opacity:.25;pointer-events:none}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text2)}
+.empty-state i{font-size:44px;color:var(--text3);display:block;margin-bottom:12px}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.overlay.on{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:1.4rem 1.4rem calc(1.4rem + env(safe-area-inset-bottom));width:100%;max-width:540px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-head{font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.drow{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;gap:12px}
+.drow:last-child{border:none}
+.dl{color:var(--text2);flex-shrink:0;display:flex;align-items:center;gap:5px}
+.dv{font-weight:500;text-align:right;word-break:break-word;max-width:240px}
+.dv.note{font-weight:400;color:var(--text2);text-align:left;max-width:100%}
+.modal-section{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}
+.cv-link{color:var(--blue);cursor:pointer;text-decoration:underline}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.lock-note{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.pw-modal{background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:1.4rem 1.4rem calc(1.4rem + env(safe-area-inset-bottom));width:100%;max-width:400px}
+
+/* SYNC BAR */
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:13px;border-radius:var(--radius);padding:8px 12px;margin-bottom:1rem;border:1px solid var(--border)}
+.sync-bar.ok{background:var(--green-light);border-color:#a7f3d0;color:var(--green-dark)}
+.sync-bar.err{background:var(--red-light);border-color:var(--red-border);color:var(--red)}
+.sync-bar.loading{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue)}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REPORTS */
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.rstat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
+.rstat-n{font-size:26px;font-weight:600}
+.rstat-l{font-size:12px;color:var(--text2);margin-top:3px}
+.rstat.green{border-color:#a7f3d0;background:var(--green-light)}
+.rstat.red{border-color:var(--red-border);background:var(--red-light)}
+.rstat.amber{border-color:var(--amber-border);background:var(--amber-light)}
+.rstat.blue{border-color:var(--blue-border);background:var(--blue-light)}
+.rstat.purple{border-color:var(--purple-border);background:var(--purple-light)}
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem;margin-bottom:1rem}
+.report-card h3{font-size:14px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:7px}
+.report-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.report-row:last-child{border:none}
+.report-bar-wrap{flex:1;margin:0 12px;background:var(--bg);border-radius:20px;height:8px;overflow:hidden}
+.report-bar{height:100%;border-radius:20px;background:var(--green);transition:width .4s}
+.report-val{font-weight:600;font-size:13px;min-width:24px;text-align:right}
+.job-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border);margin:2px}
+.add-bar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.toast{position:fixed;bottom:calc(1.5rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+.currency{font-size:12px;color:var(--text2);margin-left:2px}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr}
+  .form-grid,.form-grid.three{grid-template-columns:1fr}
+  .report-grid{grid-template-columns:1fr 1fr}
+  .nav-tab span.tab-label{display:none}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen on" id="s-login">
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-logo"><i class="ti ti-brand-whatsapp"></i></div>
+      <div class="login-title">Lead Tracker</div>
+      <div class="login-sub">Sign in to your account</div>
+      <div class="err" id="login-err"><i class="ti ti-alert-circle"></i><span id="login-err-msg"></span></div>
+      <div class="field"><label>Who are you?</label>
+        <select id="login-user">
+          <option value="">Select your name...</option>
+          <option value="admin">Admin (manager)</option>
+          <option value="Oshini">Oshini</option>
+          <option value="Maheesha">Maheesha</option>
+          <option value="Sanjana">Sanjana</option>
+          <option value="Prabath">Prabath</option>
+        </select>
+      </div>
+      <div class="field"><label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn primary" onclick="doLogin()"><i class="ti ti-login"></i> Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="screen" id="s-main">
+  <div class="main-page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="t-logo"><i class="ti ti-brand-whatsapp"></i></div>
+        <div><div class="t-title" id="top-name">—</div><div class="t-sub">WhatsApp Lead Tracker</div></div>
+        <span class="role-badge" id="top-role">Sales</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn sm" onclick="openPwModal()" title="Change password"><i class="ti ti-key"></i></button>
+        <button class="btn sm" onclick="doLogout()" title="Sign out"><i class="ti ti-logout"></i></button>
+      </div>
+    </div>
+
+    <div class="sync-bar loading" id="sync-bar">
+      <i class="ti ti-loader spin" style="font-size:15px"></i>
+      <span id="sync-msg">Connecting...</span>
+      <button class="btn sm" style="margin-left:auto;padding:5px 10px;font-size:12px" onclick="loadLeads()"><i class="ti ti-refresh"></i></button>
+    </div>
+
+    <!-- NAV TABS -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('leads')" id="tab-leads"><i class="ti ti-users"></i><span class="tab-label">Leads</span></button>
+      <button class="nav-tab admin-only" onclick="switchTab('reports')" id="tab-reports"><i class="ti ti-chart-bar"></i><span class="tab-label">Reports</span></button>
+      <button class="nav-tab admin-only" onclick="exportExcel()" id="tab-excel" style="margin-left:auto;color:var(--green-dark)"><i class="ti ti-file-spreadsheet"></i><span class="tab-label">Export Excel</span></button>
+    </div>
+
+    <!-- LEADS TAB -->
+    <div class="tab-panel active" id="panel-leads">
+      <div class="stats">
+        <div class="stat" onclick="filterStatus('')"><div class="stat-n" id="st-total">0</div><div class="stat-l">Total</div></div>
+        <div class="stat" onclick="filterStatus('new')"><div class="stat-n" id="st-new">0</div><div class="stat-l">New</div></div>
+        <div class="stat" onclick="filterStatus('continued')"><div class="stat-n" id="st-cont">0</div><div class="stat-l">Continued</div></div>
+        <div class="stat" onclick="filterStatus('dup')"><div class="stat-n" id="st-dup">0</div><div class="stat-l">Duplicates</div></div>
+      </div>
+
+      <div class="search-row">
+        <input type="tel" id="search" placeholder="🔍  Search by phone number..." oninput="renderList()" inputmode="numeric">
+        <select id="fil-sales" onchange="renderList()">
+          <option value="">All team</option>
+          <option>Oshini</option><option>Maheesha</option><option>Sanjana</option><option>Prabath</option>
+        </select>
+        <select id="fil-status" onchange="renderList()">
+          <option value="">All status</option>
+          <option value="new">New</option>
+          <option value="follow">Follow up</option>
+          <option value="continued">Continued</option>
+          <option value="notcontinued">Not Continued</option>
+          <option value="closed">Closed</option>
+          <option value="dup">Duplicate</option>
+        </select>
+        <select id="fil-job" onchange="renderList()">
+          <option value="">All jobs</option>
+        </select>
+      </div>
+
+      <div class="add-bar">
+        <button class="btn sm" style="background:var(--green);border-color:var(--green);color:#fff" onclick="openAddForm()" id="add-btn"><i class="ti ti-plus"></i> Add lead</button>
+      </div>
+
+      <div id="add-form-wrap" style="display:none">
+        <div class="form-card">
+          <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:8px"><i class="ti ti-user-plus"></i><span id="form-title-txt">New lead</span></div>
+
+          <div class="dup-warn" id="dup-warn">
+            <i class="ti ti-alert-triangle" style="font-size:19px;flex-shrink:0;margin-top:1px"></i>
+            <div style="flex:1"><div id="dup-msg" style="font-weight:600;margin-bottom:4px"></div><div id="dup-detail"></div></div>
+          </div>
+
+          <div class="form-section"><i class="ti ti-user" style="font-size:13px"></i> Customer Info</div>
+          <div class="form-grid">
+            <div class="field" style="margin:0"><label>Phone number *</label><input type="tel" id="f-phone" placeholder="+94 77 123 4567" oninput="checkDup(this.value)" inputmode="tel"></div>
+            <div class="field" style="margin:0"><label>Customer name *</label><input type="text" id="f-name" placeholder="Full name" autocomplete="off"></div>
+          </div>
+
+          <div class="form-section"><i class="ti ti-briefcase" style="font-size:13px"></i> Job Details</div>
+          <div class="form-grid">
+            <div class="field" style="margin:0"><label>Job applying for</label><input type="text" id="f-job" placeholder="e.g. Sales Executive, Driver..." autocomplete="off"></div>
+            <div class="field" style="margin:0"><label>Payment</label><input type="text" id="f-payment" placeholder="e.g. Rs. 50,000 / month"></div>
+          </div>
+
+          <div class="form-section"><i class="ti ti-settings" style="font-size:13px"></i> Assignment & Status</div>
+          <div class="form-grid">
+            <div class="field" style="margin:0"><label>Assign to *</label>
+              <select id="f-sales">
+                <option value="">Select person...</option>
+                <option>Oshini</option><option>Maheesha</option><option>Sanjana</option><option>Prabath</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0"><label>Status</label>
+              <select id="f-status">
+                <option value="new">New</option>
+                <option value="follow">Follow up</option>
+                <option value="continued">Continued ✓</option>
+                <option value="notcontinued">Not Continued ✗</option>
+                <option value="closed">Closed</option>
+                <option value="dup">Duplicate</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section"><i class="ti ti-notes" style="font-size:13px"></i> Notes & Documents</div>
+          <div class="form-grid one">
+            <div class="field" style="margin:0"><label>Notes</label><textarea id="f-notes" placeholder="Interview details, feedback, follow-up info..."></textarea></div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>CV / Document (optional)</label>
+            <div class="upload-zone" onclick="document.getElementById('f-cv').click()">
+              <i class="ti ti-cloud-upload"></i>
+              <p>Tap to upload CV — PDF, Word, or image (max 500KB)</p>
+            </div>
+            <input type="file" id="f-cv" style="display:none" onchange="handleFile(this)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+            <div class="file-ok" id="file-ok"><i class="ti ti-circle-check"></i><span id="file-ok-name"></span></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn sm" onclick="closeForm()">Cancel</button>
+            <button class="btn sm primary" style="width:auto" onclick="saveLead()" id="save-btn"><i class="ti ti-device-floppy"></i> Save lead</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="list-area"></div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div class="tab-panel" id="panel-reports">
+      <div id="report-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="overlay" id="view-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><span id="m-title">Details</span><button class="ibtn" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
+    <div id="m-body"></div>
+    <div class="modal-footer" id="m-footer"></div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="overlay" id="pw-overlay" onclick="if(event.target===this)closePwModal()">
+  <div class="pw-modal">
+    <div class="modal-head">Change password <button class="ibtn" onclick="closePwModal()"><i class="ti ti-x"></i></button></div>
+    <div class="err" id="pw-err"><i class="ti ti-alert-circle"></i><span id="pw-err-msg"></span></div>
+    <div class="field"><label>Current password</label><input type="password" id="pw-current" placeholder="Your current password"></div>
+    <div class="field"><label>New password</label><input type="password" id="pw-new" placeholder="At least 6 characters"></div>
+    <div class="field"><label>Confirm new password</label><input type="password" id="pw-confirm" placeholder="Repeat new password"></div>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn sm" onclick="closePwModal()">Cancel</button>
+      <button class="btn sm primary" style="width:auto" onclick="savePassword()"><i class="ti ti-check"></i> Update</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FIREBASE_URL = 'https://salestema-81447-default-rtdb.firebaseio.com';
+const DB = FIREBASE_URL + '/leads.json';
+
+const DEFAULT_PW={admin:'admin123',Oshini:'sales123',Maheesha:'sales123',Sanjana:'sales123',Prabath:'sales123'};
+function getPwStore(){try{return JSON.parse(localStorage.getItem('lt_pw')||'{}')}catch(e){return{}}}
+function setPwStore(o){localStorage.setItem('lt_pw',JSON.stringify(o))}
+function getPassword(u){return getPwStore()[u]||DEFAULT_PW[u]||'sales123'}
+
+const COLORS=[{bg:'#dbeafe',tx:'#1e40af'},{bg:'#dcfce7',tx:'#166534'},{bg:'#fef3c7',tx:'#92400e'},{bg:'#fce7f3',tx:'#9d174d'},{bg:'#ede9fe',tx:'#5b21b6'},{bg:'#d1fae5',tx:'#065f46'}];
+function col(n){let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h]}
+function initials(n){return n.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function today(){return new Date().toLocaleDateString('en-GB')}
+function toast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+function setSyncOk(){const b=document.getElementById('sync-bar');b.className='sync-bar ok';b.querySelector('i').className='ti ti-cloud-check';document.getElementById('sync-msg').textContent='Connected — all team sees the same leads'}
+function setSyncErr(){const b=document.getElementById('sync-bar');b.className='sync-bar err';b.querySelector('i').className='ti ti-cloud-off';document.getElementById('sync-msg').textContent='Cannot connect to database'}
+function setSyncLoad(){const b=document.getElementById('sync-bar');b.className='sync-bar loading';b.querySelector('i').className='ti ti-loader spin';document.getElementById('sync-msg').textContent='Loading...'}
+
+let me=null,leads=[],editId=null,pendingCv=null,pendingCvName=null,viewId=null;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+
+function switchTab(t){
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+  if(t==='reports')renderReports();
+}
+
+function filterStatus(s){document.getElementById('fil-status').value=s;renderList()}
+
+function doLogin(){
+  const u=document.getElementById('login-user').value;
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  const msg=document.getElementById('login-err-msg');
+  if(!u){msg.textContent='Please select your name.';err.classList.add('on');return}
+  if(getPassword(u)!==p){msg.textContent='Wrong password.';err.classList.add('on');return}
+  err.classList.remove('on');
+  me={key:u,role:u==='admin'?'admin':'sales',label:u==='admin'?'Admin':u};
+  document.getElementById('top-name').textContent=me.label;
+  document.getElementById('top-role').textContent=me.role==='admin'?'Admin':'Sales';
+  document.getElementById('top-role').className='role-badge '+(me.role==='admin'?'admin':'sales');
+  // Show reports + excel tab only for admin
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=me.role==='admin'?'flex':'none');
+  show('s-main');loadLeads();
+}
+function doLogout(){
+  me=null;leads=[];
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-err').classList.remove('on');
+  show('s-login');
+}
+
+// ── FIREBASE ─────────────────────────────────────
+async function loadLeads(){
+  setSyncLoad();
+  try{
+    const r=await fetch(DB);
+    if(!r.ok)throw new Error(r.status);
+    const data=await r.json();
+    leads=data?Object.values(data):[];
+    leads.sort((a,b)=>String(b.id).localeCompare(String(a.id)));
+    setSyncOk();
+    renderList();
+    updateJobFilter();
+  }catch(e){setSyncErr();document.getElementById('list-area').innerHTML='<div class="empty-state"><i class="ti ti-cloud-off"></i>Cannot connect. Check Firebase rules are set to public.</div>';}
+}
+
+async function saveOneLead(lead){
+  const r=await fetch(FIREBASE_URL+'/leads/'+lead.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)});
+  if(!r.ok)throw new Error(r.status);
+}
+async function deleteOneLead(id){
+  const r=await fetch(FIREBASE_URL+'/leads/'+id+'.json',{method:'DELETE'});
+  if(!r.ok)throw new Error(r.status);
+}
+
+// ── JOB FILTER ───────────────────────────────────
+function updateJobFilter(){
+  const jobs=[...new Set(leads.map(l=>l.job).filter(Boolean))].sort();
+  const sel=document.getElementById('fil-job');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">All jobs</option>'+jobs.map(j=>`<option value="${esc(j)}"${j===cur?' selected':''}>${esc(j)}</option>`).join('');
+}
+
+// ── RENDER LEADS ──────────────────────────────────
+function renderList(){
+  const q=(document.getElementById('search').value||'').replace(/\s+/g,'');
+  const fs=document.getElementById('fil-sales').value;
+  const fst=document.getElementById('fil-status').value;
+  const fj=document.getElementById('fil-job').value;
+  const filtered=leads.filter(l=>{
+    const pm=!q||l.phone.replace(/\s+/g,'').includes(q);
+    const nm=!q||l.name.toLowerCase().includes(q.toLowerCase());
+    return (pm||nm)&&(!fs||l.sales===fs)&&(!fst||l.status===fst)&&(!fj||l.job===fj);
+  });
+  document.getElementById('st-total').textContent=leads.length;
+  document.getElementById('st-new').textContent=leads.filter(l=>l.status==='new').length;
+  document.getElementById('st-cont').textContent=leads.filter(l=>l.status==='continued').length;
+  document.getElementById('st-dup').textContent=leads.filter(l=>l.status==='dup').length;
+  const el=document.getElementById('list-area');
+  if(!filtered.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-users-group"></i>${leads.length?'No results found.':'No leads yet. Tap "Add lead" to start!'}</div>`;return}
+  const slabel={new:'New',follow:'Follow up',continued:'Continued ✓',notcontinued:'Not Continued ✗',closed:'Closed',dup:'Duplicate'};
+  const canEdit=me&&me.role==='admin';
+  el.innerHTML='<div class="leads">'+filtered.map(l=>{
+    const c=col(l.name);const isDup=l.status==='dup';
+    return `<div class="lcard${isDup?' dup-card':''}">
+      <div class="avatar" style="background:${c.bg};color:${c.tx}">${initials(l.name)}</div>
+      <div>
+        <div class="lphone">${esc(l.phone)}</div>
+        <div class="lname">${esc(l.name)}</div>
+        ${l.job?`<div class="ljob"><i class="ti ti-briefcase" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>${esc(l.job)}</div>`:''}
+        <div class="lmeta">
+          <span class="chip sales-chip">${esc(l.sales)}</span>
+          <span class="chip st-${l.status||'new'}">${slabel[l.status]||l.status}</span>
+          ${l.payment?`<span class="chip pay"><i class="ti ti-coin" style="font-size:10px;vertical-align:-1px;margin-right:2px"></i>${esc(l.payment)}</span>`:''}
+          ${l.cvName?'<span class="chip cv"><i class="ti ti-paperclip" style="font-size:10px;vertical-align:-1px;margin-right:2px"></i>CV</span>':''}
+          <span class="ldate">${l.date||''}</span>
+        </div>
+      </div>
+      <div class="lactions">
+        <button class="ibtn${canEdit?'':' locked'}" onclick="${canEdit?`editLead('${l.id}')`:''}" title="${canEdit?'Edit':'Only admin can edit'}"><i class="ti ti-edit"></i></button>
+        <button class="ibtn" onclick="viewLead('${l.id}')"><i class="ti ti-eye"></i></button>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ── PHONE NORMALIZER ─────────────────────────────
+// +94740354888 / 0740354888 / 074 035 4888 all become 740354888
+function normalizePhone(p){
+  if(!p)return'';
+  let n=String(p).replace(/[\s\-().+]/g,'');
+  if(n.startsWith('94')&&n.length>=11) n=n.slice(2);
+  if(n.startsWith('0')) n=n.slice(1);
+  return n;
+}
+
+// ── DUPLICATE CHECK ───────────────────────────────
+function checkDup(phone){
+  if(!phone||phone.replace(/\D/g,'').length<6){document.getElementById('dup-warn').classList.remove('on');return}
+  const clean=normalizePhone(phone);
+  const found=leads.filter(l=>normalizePhone(l.phone)===clean&&l.id!==editId);
+  const b=document.getElementById('dup-warn');
+  const slabel={new:'New',follow:'Follow up',continued:'Continued ✓',notcontinued:'Not Continued ✗',closed:'Closed',dup:'Duplicate'};
+  if(found.length){
+    document.getElementById('dup-msg').textContent=`⚠️ This number already exists! (${found.length} record${found.length>1?'s':''})`;
+    document.getElementById('dup-detail').innerHTML='<div class="dup-inner">'+found.map(f=>`<div class="dup-row"><span style="font-weight:600">${esc(f.name)}${f.job?' · '+esc(f.job):''}</span><span style="color:var(--red)">${esc(f.sales)} · ${slabel[f.status]||f.status}</span></div>`).join('')+'</div>';
+    b.classList.add('on');
+  }else{b.classList.remove('on');document.getElementById('dup-detail').innerHTML='';}
+}
+
+// ── FORM ──────────────────────────────────────────
+function openAddForm(){
+  editId=null;pendingCv=null;pendingCvName=null;
+  ['f-name','f-phone','f-notes','f-job','f-payment'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-sales').value='';
+  document.getElementById('f-status').value='new';
+  document.getElementById('f-cv').value='';
+  document.getElementById('file-ok').classList.remove('on');
+  document.getElementById('dup-warn').classList.remove('on');
+  document.getElementById('form-title-txt').textContent='New lead';
+  document.getElementById('add-form-wrap').style.display='block';
+  document.getElementById('add-btn').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeForm(){
+  document.getElementById('add-form-wrap').style.display='none';
+  document.getElementById('add-btn').style.display='';
+  editId=null;pendingCv=null;pendingCvName=null;
+}
+function handleFile(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>500000){toast('File too large. Max 500KB.');inp.value='';return}
+  const r=new FileReader();
+  r.onload=e=>{pendingCv=e.target.result;pendingCvName=f.name;document.getElementById('file-ok-name').textContent=f.name;document.getElementById('file-ok').classList.add('on');};
+  r.readAsDataURL(f);
+}
+
+async function saveLead(){
+  const phone=document.getElementById('f-phone').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  const sales=document.getElementById('f-sales').value;
+  if(!phone||!name||!sales){toast('Please fill in phone, name, and sales person.');return}
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader spin"></i> Saving...';
+  try{
+    const id=editId||uid();
+    const existing=editId?leads.find(l=>l.id===editId):{};
+    const lead={
+      id,name,phone,sales,
+      status:document.getElementById('f-status').value,
+      job:document.getElementById('f-job').value.trim(),
+      payment:document.getElementById('f-payment').value.trim(),
+      notes:document.getElementById('f-notes').value.trim(),
+      cv:pendingCv||existing.cv||'',
+      cvName:pendingCvName||existing.cvName||'',
+      date:existing.date||today(),
+      addedBy:existing.addedBy||me.label
+    };
+    await saveOneLead(lead);
+    toast(editId?'Lead updated!':'Lead saved!');
+    closeForm();await loadLeads();
+  }catch(e){toast('Error saving. Please try again.');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> Save lead';}
+}
+
+// ── EDIT / VIEW / DELETE ──────────────────────────
+function editLead(id){
+  if(!me||me.role!=='admin'){toast('Only the admin can edit.');return}
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  editId=id;
+  document.getElementById('f-phone').value=l.phone;
+  document.getElementById('f-name').value=l.name;
+  document.getElementById('f-sales').value=l.sales;
+  document.getElementById('f-status').value=l.status||'new';
+  document.getElementById('f-job').value=l.job||'';
+  document.getElementById('f-payment').value=l.payment||'';
+  document.getElementById('f-notes').value=l.notes||'';
+  pendingCv=null;pendingCvName=null;
+  if(l.cvName){document.getElementById('file-ok-name').textContent=l.cvName;document.getElementById('file-ok').classList.add('on');}
+  else document.getElementById('file-ok').classList.remove('on');
+  document.getElementById('dup-warn').classList.remove('on');
+  document.getElementById('form-title-txt').textContent='Edit lead';
+  document.getElementById('add-form-wrap').style.display='block';
+  document.getElementById('add-btn').style.display='none';
+  closeModal();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function viewLead(id){
+  viewId=id;const l=leads.find(x=>x.id===id);if(!l)return;
+  const slabel={new:'New',follow:'Follow up',continued:'Continued ✓',notcontinued:'Not Continued ✗',closed:'Closed',dup:'Duplicate'};
+  const samePhone=leads.filter(x=>normalizePhone(x.phone)===normalizePhone(l.phone)&&x.id!==id);
+  document.getElementById('m-title').textContent=esc(l.name);
+  document.getElementById('m-body').innerHTML=`
+    <div class="modal-section">Contact</div>
+    <div class="drow"><span class="dl"><i class="ti ti-phone"></i>Phone</span><span class="dv">${esc(l.phone)}</span></div>
+    <div class="drow"><span class="dl"><i class="ti ti-user"></i>Name</span><span class="dv">${esc(l.name)}</span></div>
+    <div class="modal-section">Job Details</div>
+    <div class="drow"><span class="dl"><i class="ti ti-briefcase"></i>Job</span><span class="dv">${esc(l.job||'—')}</span></div>
+    <div class="drow"><span class="dl"><i class="ti ti-coin"></i>Payment</span><span class="dv">${esc(l.payment||'—')}</span></div>
+    <div class="modal-section">Assignment</div>
+    <div class="drow"><span class="dl"><i class="ti ti-user-check"></i>Sales person</span><span class="dv">${esc(l.sales)}</span></div>
+    <div class="drow"><span class="dl"><i class="ti ti-flag"></i>Status</span><span class="dv">${slabel[l.status]||l.status}</span></div>
+    <div class="drow"><span class="dl"><i class="ti ti-calendar"></i>Date</span><span class="dv">${l.date||'—'}</span></div>
+    <div class="drow"><span class="dl"><i class="ti ti-pencil"></i>Added by</span><span class="dv">${esc(l.addedBy||'—')}</span></div>
+    ${l.notes?`<div class="drow" style="flex-direction:column;gap:5px;align-items:flex-start"><span class="dl"><i class="ti ti-notes"></i>Notes</span><span class="dv note">${esc(l.notes)}</span></div>`:''}
+    ${l.cvName?`<div class="drow"><span class="dl"><i class="ti ti-paperclip"></i>CV</span><span class="cv-link" onclick="dlCv('${id}')">${esc(l.cvName)}</span></div>`:''}
+    ${samePhone.length?`<div class="modal-section" style="color:var(--red)">⚠️ Also contacted</div>${samePhone.map(x=>`<div class="drow"><span class="dl">${esc(x.name)}</span><span class="dv" style="color:var(--red)">${esc(x.sales)} · ${slabel[x.status]||x.status}</span></div>`).join('')}`:''}
+  `;
+  const canEdit=me&&me.role==='admin';
+  document.getElementById('m-footer').innerHTML=canEdit
+    ?`<button class="btn sm danger" onclick="deleteLead()"><i class="ti ti-trash"></i> Delete</button><button class="btn sm" onclick="editLead('${id}')"><i class="ti ti-edit"></i> Edit</button>`
+    :`<span class="lock-note"><i class="ti ti-lock"></i> Only admin can edit or delete</span>`;
+  document.getElementById('view-overlay').classList.add('on');
+}
+function closeModal(){document.getElementById('view-overlay').classList.remove('on');viewId=null}
+function dlCv(id){const l=leads.find(x=>x.id===id);if(!l||!l.cv)return;const a=document.createElement('a');a.href=l.cv;a.download=l.cvName||'cv';a.click()}
+
+async function deleteLead(){
+  if(!me||me.role!=='admin'){toast('Only admin can delete.');return}
+  if(!confirm('Delete this lead permanently?'))return;
+  try{await deleteOneLead(viewId);toast('Lead deleted.');closeModal();await loadLeads();}
+  catch(e){toast('Error deleting.');}
+}
+
+// ── REPORTS ───────────────────────────────────────
+function renderReports(){
+  const total=leads.length;
+  const continued=leads.filter(l=>l.status==='continued').length;
+  const notcont=leads.filter(l=>l.status==='notcontinued').length;
+  const dups=leads.filter(l=>l.status==='dup').length;
+  const convRate=total>0?Math.round((continued/total)*100):0;
+
+  // Per-person stats
+  const team=['Oshini','Maheesha','Sanjana','Prabath'];
+  const teamStats=team.map(name=>{
+    const mine=leads.filter(l=>l.sales===name);
+    const cont=mine.filter(l=>l.status==='continued').length;
+    return{name,total:mine.length,continued:cont,rate:mine.length>0?Math.round((cont/mine.length)*100):0};
+  });
+  const maxTotal=Math.max(...teamStats.map(t=>t.total),1);
+
+  // Job stats
+  const jobMap={};
+  leads.forEach(l=>{if(l.job){jobMap[l.job]=(jobMap[l.job]||0)+1}});
+  const jobs=Object.entries(jobMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxJob=jobs.length?jobs[0][1]:1;
+
+  const withPayment=leads.filter(l=>l.payment).length;
+
+  document.getElementById('report-content').innerHTML=`
+    <!-- Summary -->
+    <div class="report-grid">
+      <div class="rstat blue"><div class="rstat-n">${total}</div><div class="rstat-l">Total leads</div></div>
+      <div class="rstat green"><div class="rstat-n">${continued}</div><div class="rstat-l">Continued</div></div>
+      <div class="rstat red"><div class="rstat-n">${notcont}</div><div class="rstat-l">Not continued</div></div>
+      <div class="rstat amber"><div class="rstat-n">${convRate}%</div><div class="rstat-l">Conversion rate</div></div>
+      <div class="rstat red"><div class="rstat-n">${dups}</div><div class="rstat-l">Duplicates</div></div>
+      <div class="rstat purple"><div class="rstat-n">${withPayment}</div><div class="rstat-l">With payment info</div></div>
+    </div>
+
+    <!-- Team performance -->
+    <div class="report-card">
+      <h3><i class="ti ti-users"></i> Team performance</h3>
+      ${teamStats.map(t=>`
+        <div class="report-row">
+          <span style="font-weight:600;min-width:80px">${t.name}</span>
+          <div class="report-bar-wrap"><div class="report-bar" style="width:${total?Math.round((t.total/maxTotal)*100):0}%"></div></div>
+          <span class="report-val">${t.total}</span>
+          <span style="font-size:11px;color:var(--green-dark);min-width:60px;text-align:right">${t.continued} continued</span>
+          <span style="font-size:11px;color:var(--text2);min-width:36px;text-align:right">${t.rate}%</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- Jobs breakdown -->
+    ${jobs.length?`<div class="report-card">
+      <h3><i class="ti ti-briefcase"></i> Top jobs applied for</h3>
+      ${jobs.map(([job,count])=>`
+        <div class="report-row">
+          <span style="min-width:140px;font-weight:500">${esc(job)}</span>
+          <div class="report-bar-wrap"><div class="report-bar" style="width:${Math.round((count/maxJob)*100)}%;background:var(--purple)"></div></div>
+          <span class="report-val">${count}</span>
+        </div>`).join('')}
+    </div>`:''}
+
+    <!-- Status breakdown -->
+    <div class="report-card">
+      <h3><i class="ti ti-chart-pie"></i> Status breakdown</h3>
+      ${[['new','New',leads.filter(l=>l.status==='new').length,'var(--green)'],
+         ['follow','Follow up',leads.filter(l=>l.status==='follow').length,'var(--amber)'],
+         ['continued','Continued',continued,'#15803d'],
+         ['notcontinued','Not Continued',notcont,'var(--red)'],
+         ['closed','Closed',leads.filter(l=>l.status==='closed').length,'var(--text2)'],
+         ['dup','Duplicate',dups,'var(--red)']
+        ].map(([,label,count,color])=>total?`
+        <div class="report-row">
+          <span style="min-width:110px">${label}</span>
+          <div class="report-bar-wrap"><div class="report-bar" style="width:${Math.round((count/total)*100)}%;background:${color}"></div></div>
+          <span class="report-val">${count}</span>
+          <span style="font-size:11px;color:var(--text2);min-width:36px;text-align:right">${Math.round((count/total)*100)}%</span>
+        </div>`:'').join('')}
+    </div>
+  `;
+}
+
+// ── EXCEL EXPORT ──────────────────────────────────
+function exportExcel(){
+  if(!me||me.role!=='admin'){toast('Only admin can export.');return}
+  if(!leads.length){toast('No leads to export.');return}
+  toast('Preparing Excel file...',1500);
+
+  const slabel={new:'New',follow:'Follow up',continued:'Continued',notcontinued:'Not Continued',closed:'Closed',dup:'Duplicate'};
+
+  // Build rows — one per lead, clean columns
+  const rows=leads.map(l=>({
+    'Date Added':l.date||'',
+    'Phone Number':l.phone||'',
+    'Customer Name':l.name||'',
+    'Job Applied For':l.job||'',
+    'Payment':l.payment||'',
+    'Status':slabel[l.status]||l.status||'',
+    'Sales Person':l.sales||'',
+    'Added By':l.addedBy||'',
+    'Notes':l.notes||'',
+    'Has CV':l.cvName?'Yes':'No'
+  }));
+
+  // Create workbook
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+
+  // Column widths
+  ws['!cols']=[
+    {wch:14},{wch:18},{wch:22},{wch:22},{wch:18},
+    {wch:16},{wch:14},{wch:14},{wch:35},{wch:8}
+  ];
+
+  XLSX.utils.book_append_sheet(wb,ws,'All Leads');
+
+  // Second sheet — per-person summary
+  const team=['Oshini','Maheesha','Sanjana','Prabath'];
+  const summary=team.map(name=>{
+    const mine=leads.filter(l=>l.sales===name);
+    return{
+      'Sales Person':name,
+      'Total Leads':mine.length,
+      'New':mine.filter(l=>l.status==='new').length,
+      'Follow Up':mine.filter(l=>l.status==='follow').length,
+      'Continued':mine.filter(l=>l.status==='continued').length,
+      'Not Continued':mine.filter(l=>l.status==='notcontinued').length,
+      'Closed':mine.filter(l=>l.status==='closed').length,
+      'Duplicates':mine.filter(l=>l.status==='dup').length,
+    };
+  });
+  const ws2=XLSX.utils.json_to_sheet(summary);
+  ws2['!cols']=[{wch:16},{wch:12},{wch:8},{wch:12},{wch:12},{wch:16},{wch:10},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Team Summary');
+
+  // Download
+  const date=new Date().toLocaleDateString('en-GB').replace(/\//g,'-');
+  XLSX.writeFile(wb,`leads-${date}.xlsx`);
+}
+
+// ── PASSWORD ──────────────────────────────────────
+function openPwModal(){
+  ['pw-current','pw-new','pw-confirm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pw-err').classList.remove('on');
+  document.getElementById('pw-overlay').classList.add('on');
+}
+function closePwModal(){document.getElementById('pw-overlay').classList.remove('on')}
+function savePassword(){
+  const cur=document.getElementById('pw-current').value;
+  const nw=document.getElementById('pw-new').value;
+  const con=document.getElementById('pw-confirm').value;
+  const err=document.getElementById('pw-err');
+  const msg=document.getElementById('pw-err-msg');
+  if(getPassword(me.key)!==cur){msg.textContent='Current password is wrong.';err.classList.add('on');return}
+  if(nw.length<6){msg.textContent='New password must be at least 6 characters.';err.classList.add('on');return}
+  if(nw!==con){msg.textContent='Passwords do not match.';err.classList.add('on');return}
+  const store=getPwStore();store[me.key]=nw;setPwStore(store);
+  closePwModal();toast('Password updated!');
+}
+</script>
+</body>
+</html>
